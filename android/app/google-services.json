@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "410497703187",
+    "project_id": "lit-app-login",
+    "storage_bucket": "lit-app-login.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410497703187:android:e0d78a6df74f885c910ee6",
+        "android_client_info": {
+          "package_name": "com.lifekeypad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "410497703187-15ht0kt2skbhku7eb88macklfi7f7msj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZTxitXSFBByCGdqB9gI2eJFTIbVLRNsw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "410497703187-15ht0kt2skbhku7eb88macklfi7f7msj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-5213405198446794~6160485524"
+    }
+  ],
+  "configuration_version": "1"
+}
