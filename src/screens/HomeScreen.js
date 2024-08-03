@@ -16,10 +16,12 @@ import {
   setNumUserOnline,
   setRequiredFilters,
   setstarsGiven,
+  setUser,
 } from '../redux/DataSlice';
 import firebase from '@react-native-firebase/app';
 import StarModalNext from '../assets/images/starModalNext.svg';
 import {initializeApp} from 'firebase/app';
+import { parse ,format} from 'date-fns';
 import {useFocusEffect} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import uuid from 'react-native-uuid';
@@ -29,6 +31,8 @@ import appsFlyer from 'react-native-appsflyer';
 import StarRating from 'react-native-star-rating-widget';
 import StarImage from '../assets/images/starImage.svg';
 import {getData} from '../utils/storage';
+import axios from 'axios';
+import { baseMatchingUrls, currentMatchingSystem, matchingUrls } from '../utils/api';
 
 export const HomeScreen = ({navigation}) => {
   const ws = useRef(null);
@@ -45,7 +49,7 @@ export const HomeScreen = ({navigation}) => {
   //   appId: '1:410497703187:android:e0d78a6df74f885c910ee6',
   // };
   // const app = initializeApp(firebaseConfig);
-  useEffect(() => {
+  useEffect(async() => {
     getData('starsGiven').then(data => {
       console.log('data', data);
       if (data == null) {
@@ -58,7 +62,30 @@ export const HomeScreen = ({navigation}) => {
         }
       }
     });
+  
+     const res=await axios.post(`${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.GETCHANCES}`, {
+        email: User.Email,
+     })
+
+if(res.chances==0){
+    const parsedDate = parse(res.timestamp.toString(), 'yyyy-MM-dd HH:mm:ss', new Date());
+    const currentTime = new Date().getTime();
+    const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
+
+    if (currentTime - parsedDate.getTime() >= twelveHoursInMilliseconds) {
+     dispatch( setUser({ chances: 15}));
+    }
+  }
   }, []);
+  
+//   const currentTimestamp = new Date().getTime();
+// const formattedTimestamp = format(currentTimestamp, 'yyyy-MM-dd HH:mm:ss');
+// console.log(formattedTimestamp);
+// //   const fetchedTimestamp = '12/31/2024 11:59 PM';
+
+// //   // Convert the fetched timestamp to a Date object
+//   const parsedDate = parse(formattedTimestamp.toString(), 'yyyy-MM-dd HH:mm:ss', new Date());
+// console.log(parsedDate.getTime());
   const closeStarModal = () => {
     console.log('ratingggggggg', rating);
     if (rating == 5) {

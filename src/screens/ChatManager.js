@@ -31,11 +31,8 @@ const HEARTBEAT_TIMER = 2000;
 const adUnitId = __DEV__ ? TestIds.BANNER : 'ca-app-pub-5213405198446794/5572783813';
 export const ChatManager = ({navigation, route}) => {
 
-
-
-
   const[isBuyRefillPressed,setBuyRefillPressed]=useState(false)
-  const [isRefillModalVisible, setRefillModalVisible] = useState(false);
+  const [isRefillModalVisible, setRefillModalVisible] = useState(true);
   const [confirmationPopupVisible, setConfirmationPopupVisible] =
     useState(false);
   const [confirmationPopupLoading, setConfirmationPopupLoading] =
@@ -65,6 +62,9 @@ export const ChatManager = ({navigation, route}) => {
 
   useEffect(() => {
     chatDataRef.current = ChatData;
+    if(User.chances==0){
+      setRefillModalVisible(true);
+    } 
   }, [ChatData]);
 
   //Hnadle delete chat tab

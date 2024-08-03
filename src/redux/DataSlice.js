@@ -24,7 +24,7 @@ const initialState = {
   isBlocked: false,
   IP: '',
   User: {
-    chances:15,
+    chances:'',
     Name: '',
     Country: '',
     Gender: '',

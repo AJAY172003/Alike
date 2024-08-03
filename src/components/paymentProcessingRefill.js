@@ -7,7 +7,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {routes} from '../constants/routes';
 import {setUser} from '../redux/DataSlice';
 import {supaClient} from '../utils/SupaClient';
-import {verifyPayment} from '../utils/api';
+import {baseMatchingUrls, currentMatchingSystem, matchingUrls, verifyPayment} from '../utils/api';
 
 function PaymentProcessingRefill({navigation}) {
   const {User} = useSelector(state => state.data);
@@ -15,7 +15,7 @@ function PaymentProcessingRefill({navigation}) {
   const purchaseTokenRef = useRef(null);
   const subIdRef = useRef(null);
   const [transactionFailed, setTransactionFailed] = useState(false);
-
+  // console.log(`${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.CHANCES}`);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -50,15 +50,22 @@ function PaymentProcessingRefill({navigation}) {
       );
      console.log(User.Email)
       verifyPayment({
-      
+        
         purchaseToken: purchaseTokenRef.current,
         email: User.Email,
-        subId: subIdRef.current,
+        subId: "alike1",
       })
         .then(function (response) {
           // TODO: handle other status codes too in future
-          dispatch(setUser({...User, isPremium: true}));
-          ToastAndroid.show('Your subscription is live now', ToastAndroid.LONG);
+   console.log("succesfully purchased")
+          // dispatch(setUser({...User, isPremium: true}));
+          ToastAndroid.show('Succesfully purchased chances', ToastAndroid.LONG);
+         
+          axios.post(`${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.CHANCES}`, {
+            email: User.Email,
+            chances: User.chances+15,
+          });
+          dispatch(setUser({chances: User.chances+15}))
           navigation.navigate(routes.SETTINGS);
         })
         .catch(function (error) {
@@ -75,14 +82,14 @@ function PaymentProcessingRefill({navigation}) {
     try {
       const paymentResult = await InAppPurchasePayments(SKU_IDs);
       console.log('initiating payment.....',paymentResult);
-      if (paymentResult.success) {
+      if (paymentResult) {
         console.log(
           'payment successful',
-          paymentResult.detail[0].purchaseToken,
+          paymentResult[0].purchaseToken,
         );
-        purchaseTokenRef.current = paymentResult.detail[0].purchaseToken;
-        subIdRef.current = paymentResult.detail[0].productId;
-        console.log('this is the sub id', paymentResult.detail[0].productId);
+        purchaseTokenRef.current = paymentResult[0].purchaseToken;
+        subIdRef.current = paymentResult[0].productId;
+        console.log('this is the sub id', paymentResult[0].productId);
       } else {
         console.log('payment failed');
         // navigation.goBack();

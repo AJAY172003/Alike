@@ -2,10 +2,14 @@ import {
     getProducts,
     initConnection,
     requestSubscription,
+    useIAP,
     getSubscriptions,
+    purchaseUpdatedListener,
+    purchaseErrorListener,
+    finishTransaction,
     requestPurchase
   } from 'react-native-iap';
-  
+  const {currentPurchase} = useIAP();
   export const InAppPurchasePayments = async productId => {
     await makeConnection(productId);
     let paymentMethodCall = await handlePayment(productId);
@@ -45,6 +49,7 @@ import {
         });
     
         console.log("purchse",purchase);
+        return purchase;
       } catch (err) {
         console.log("errro",err); // handle the error appropriately
       }
@@ -81,7 +86,25 @@ import {
       .catch(error => {
         return error;
       });
+
    console.log('payment',payment)
     return payment;
   }
+  useEffect(() => {
+    const checkCurrentPurchase = async () => {
+           try {
+               console.log('currentPurchase', currentPurchase);
+                   await finishTransaction({
+                       purchase: currentPurchase,
+                       isConsumable: true,
+                   });
+                   onApiCall(currentPurchase);
+               
+           } catch (error) {
+               handleError(error, 'checkCurrentPurchase');
+           }
+       };
+
+       checkCurrentPurchase();
+   }, [currentPurchase, finishTransaction]);
   };

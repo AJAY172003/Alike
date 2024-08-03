@@ -80,7 +80,7 @@ function FirstScreen({ navigation }) {
         if( responseJSON.data.message!=''){
         
  
-          console.log("result",response.data.message)
+          console.log("result",response.data.images)
           dispatch( setUser({
             imageData: responseJSON.data.images.length!=0? responseJSON.data.images:[{image:null,id:null},{image:null,id:null},{image:null,id:null},{image:null,id:null}],
             Email: userInfo.user.email,
@@ -160,12 +160,13 @@ function FirstScreen({ navigation }) {
      console.log(response.data) 
     });
     const user = {
+      chances:15,
       Email:email,
       Name: value,
       Country: country,
       Language: language,
       Gender: gender,
-      isUserInfoFilled: true
+      isUserInfoFilled: true  
     };
     dispatch(setUser(user));
     navigation.dispatch(StackActions.replace(routes.HOMESCREEN, {params: {}}));

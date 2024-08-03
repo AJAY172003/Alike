@@ -26,7 +26,13 @@ import {
   setUser,
 } from '../redux/DataSlice';
 import {AdView} from '../screens/AdView';
-import {sendChatRequest, skipChat} from '../utils/api';
+import {
+  baseMatchingUrls,
+  currentMatchingSystem,
+  matchingUrls,
+  sendChatRequest,
+  skipChat,
+} from '../utils/api';
 import {DraggableMessageView} from './DraggableMessageView';
 import Maleicon from '../assets/images/maleIcon.svg';
 import Femaleicon from '../assets/images/femaleIcon.svg';
@@ -36,9 +42,9 @@ import MaleLargeicon from '../assets/images/maleLarge.svg';
 import AddIcon from '../assets/images/addIcon.svg';
 
 import {getData} from '../utils/storage';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import axios from 'axios';
-import { routes } from '../constants/routes';
+import {routes} from '../constants/routes';
 
 const FEMALE = 'Female';
 //function for debounce
@@ -57,8 +63,7 @@ const useDebouncedValue = (inputValue, delay) => {
 
   return debouncedValue;
 };
-function ChatScreen( {chatTab, userId, isLocked}) {
-
+function ChatScreen({chatTab, userId, isLocked}) {
   // useFocusEffect(
   //   React.useCallback(() => {
   //     // Do something when the screen is focused
@@ -71,13 +76,13 @@ function ChatScreen( {chatTab, userId, isLocked}) {
   //   }, [])
   // );
   const [isRefillModalVisible, setRefillModalVisible] = useState(false);
-  const[isBuyRefillPressed,setBuyRefillPressed]=useState(false)
+  const [isBuyRefillPressed, setBuyRefillPressed] = useState(false);
 
   const [next, SetNext] = useState(false);
   const [timer, SetTimer] = useState(7);
   const [slideNumber, setslideNumber] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
- 
+
   const [receiverGender, setreceiverGender] = useState('');
   const [messages, setMessages] = useState([]);
   const [receiverId, setReceiverId] = useState(null);
@@ -90,25 +95,17 @@ function ChatScreen( {chatTab, userId, isLocked}) {
   const [noMatchFound, setNoMatchFound] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [replyToIndex, setReplyToIndex] = useState(null);
-  const[imageData,setImageData]=useState(null)
+  const [imageData, setImageData] = useState(null);
   const [highlightMessageIndex, setHighlightMessageIndex] = useState(-1);
-  const {
-    ChatData,
-    User,
-    LastFIOffset,
-    RequiredFilters,
-    IP,
-    InfoPopupSeen,
-  } = useSelector(state => state.data);
+  const {ChatData, User, LastFIOffset, RequiredFilters, IP, InfoPopupSeen} =
+    useSelector(state => state.data);
   const chatDataRef = useRef(null);
   const dispatch = useDispatch();
   const [isAdLoaded, setAdLoaded] = useState(false);
   console.log(' setIsRequesting;', isRequesting);
-  console.log("timer",timer)
-  
- 
+  console.log('timer', timer);
+
   useEffect(() => {
-   
     if (isDisconnected && timer != -1) {
       if (timer == 0) {
         setAdLoaded(true);
@@ -127,7 +124,6 @@ function ChatScreen( {chatTab, userId, isLocked}) {
   }, [debouncedSearchTerm]);
 
   const handleChatRequest = async () => {
-
     console.log('Requesting chat for tab: ', chatTab);
     setIsDisconnected(false);
     setNoMatchFound(false);
@@ -144,15 +140,33 @@ function ChatScreen( {chatTab, userId, isLocked}) {
         requiredFilters: RequiredFilters,
         requestId: chatDataRef.current[chatTab]?.requestId,
       });
-      console.log("rechadddddd")
-      if(response.data.user.image!=null)
-      setImageData(response.data.user.image)
-      axios.post(
-        'http://192.168.1.6:8000/updateChances',
-        { chances: User.chances-1, email: User.Email },
-      );
-      dispatch(setUser({chances:User.chances-1}))
-   
+      console.log('rechadddddd');
+      if (response.data.user.image != null)
+        setImageData(response.data.user.image);
+      console.log('chances', User.chances);
+      if (User.chances == 0) {
+        const currentTimestamp = new Date().getTime();
+        const formattedTimestamp = format(
+          currentTimestamp,
+          'yyyy-MM-dd HH:mm:ss',
+        );
+
+        axios.post(
+          `${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.CHANCES}`,
+          {
+            chances: User.chances,
+            email: User.Email,
+            timestamp: formattedTimestamp,
+          },
+        );
+      } else {
+        axios.post(
+          `${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.CHANCES}`,
+          {chances: User.chances - 1, email: User.Email, timestamp: null},
+        );
+        dispatch(setUser({chances: User.chances - 1}));
+      }
+
 
       setreceiverGender(response.data.user.gender);
       if (response.data.user.gender === FEMALE) {
@@ -206,7 +220,7 @@ function ChatScreen( {chatTab, userId, isLocked}) {
           (User.isPremium && User.premiumSettings.autoReconnect) ||
           initialOpening
         ) {
-          console.log("autoreonnect")
+          console.log('autoreonnect');
           setInitialOpening(false);
           handleChatRequest();
           setIsRequesting(true);
@@ -216,13 +230,13 @@ function ChatScreen( {chatTab, userId, isLocked}) {
       }
     }
   }, [ChatData]);
-  
+
   const sendMessage = async message => {
     setDraggedIndex(null);
     setReplyToIndex(null);
     while (isLocked);
     const randomId = uuid.v4();
-  
+
     if (!message.trim()) return;
     try {
       dispatch(setNewMessageText(message));
@@ -270,15 +284,15 @@ function ChatScreen( {chatTab, userId, isLocked}) {
     if (InfoPopupSeen == false) {
       openModal();
     }
-    if(User.chances<=0){
-      setRefillModalVisible(true)
+    if (User.chances <= 0) {
+      setRefillModalVisible(true);
     }
     return () => {
-      axios.post(
-        'http://192.168.1.6:8000/updateChances',
-        { chances: User.chances, email: User.Email },
-      );
-    }
+      axios.post('http://192.168.1.6:8000/updateChances', {
+        chances: User.chances,
+        email: User.Email,
+      });
+    };
   }, []);
   const openModal = () => {
     setModalVisible(true);
@@ -373,8 +387,8 @@ function ChatScreen( {chatTab, userId, isLocked}) {
   };
   const buyRefill = () => {
     navigation.navigate(routes.PAYMENT_PROCESSING_REFILL);
-    setBuyRefillPressed(true)
-  }
+    setBuyRefillPressed(true);
+  };
   const scrollToDirectedMessage = messageId => {
     const index = messages.findIndex(msg => msg.messageId === messageId);
     if (index !== -1) {
@@ -394,7 +408,7 @@ function ChatScreen( {chatTab, userId, isLocked}) {
         backgroundColor: '#211F1F',
         flexDirection: 'column',
       }}>
-         {/* <Modal
+      {/* <Modal
             animationType="slide"
             transparent={true}
             visible={ true}
@@ -619,36 +633,35 @@ function ChatScreen( {chatTab, userId, isLocked}) {
                   gap: 10,
                   alignItems: 'center',
                 }}>
-                {receiverGender === 'Female' ? 
-                  (
-                    imageData!=null?
-                    <Image 
-                    source={{ uri: `data:image/jpeg;base64,${imageData}` }}
-                   style={{
-                     borderRadius: 5,
-                     borderWidth: 1,
-                     borderColor: 'white',
-                     width: 30,
-                     height: 30,
-                   }}
-                 />: <Femaleicon />
-                  )  
-              : 
-              (
-                imageData!=null?
-                <Image 
-                source={{ uri: `data:image/jpeg;base64,${imageData}` }}
-               style={{
-                 borderRadius: 50,
-  
-                 borderColor: 'white',
-                 width: 30,
-                 height: 30,
-               }}
-             />: <Maleicon />
-              )
-              
-              }
+                {receiverGender === 'Female' ? (
+                  imageData != null ? (
+                    <Image
+                      source={{uri: `data:image/jpeg;base64,${imageData}`}}
+                      style={{
+                        borderRadius: 5,
+                        borderWidth: 1,
+                        borderColor: 'white',
+                        width: 30,
+                        height: 30,
+                      }}
+                    />
+                  ) : (
+                    <Femaleicon />
+                  )
+                ) : imageData != null ? (
+                  <Image
+                    source={{uri: `data:image/jpeg;base64,${imageData}`}}
+                    style={{
+                      borderRadius: 50,
+
+                      borderColor: 'white',
+                      width: 30,
+                      height: 30,
+                    }}
+                  />
+                ) : (
+                  <Maleicon />
+                )}
                 <Text
                   style={{
                     color: 'white',
@@ -701,9 +714,7 @@ function ChatScreen( {chatTab, userId, isLocked}) {
                 paddingBottom: 40,
                 paddingHorizontal: 20,
               }}>
-              {
-          <AdView/>
-              }
+              {<AdView />}
               <View>
                 {isAdLoaded ? (
                   <TouchableOpacity

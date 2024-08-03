@@ -87,7 +87,7 @@ function Settings({navigation}) {
     try {
       console.log("ssssssssssssssssssssssssssssssssssss")
       const response = await axios.post(
-        'http://192.168.1.6:8000/upload',
+        'https://king-prawn-app-xjfwg.ondigitalocean.app/upload',
         data,
   
         {
@@ -122,43 +122,43 @@ function Settings({navigation}) {
     ]);
     console.log(imageUri.current);
    
-    // if (User.imageData != null) {
-    //   User.imageData.map((item, index) => {
-    //     if (index == 0 && User.imageData[0].image != null) setImage1(true);
-    //     if (index == 1 && User.imageData[1].image != null) setImage2(true);
-    //     if (index == 2 && User.imageData[2].image != null) setImage3(true);
-    //     if (index == 3 && User.imageData[3].image != null) setImage4(true);
-    //   });
-    //   if (User.imageData.length == 1) {
-    //     setImageUri([
-    //       {image: User.imageData[0].image, id: User.imageData[0].id},
-    //       {image: null, id: null},
-    //       {image: null, id: null},
-    //       {image: null, id: null},
-    //     ]);
-    //   } else if (User.imageData.length == 2) {
-    //     setImageUri([
-    //       {image: User.imageData[0].image, id: User.imageData[0].id},
-    //       {image: User.imageData[1].image, id: User.imageData[1].id},
-    //       {image: null, id: null},
-    //       {image: null, id: null},
-    //     ]);
-    //   } else if (User.imageData.length == 3) {
-    //     setImageUri([
-    //       {image: User.imageData[0].image, id: User.imageData[0].id},
-    //       {image: User.imageData[1].image, id: User.imageData[1].id},
-    //       {image: User.imageData[2].image, id: User.imageData[2].id},
-    //       {image: null, id: null},
-    //     ]);
-    //   } else if (User.imageData.length == 4) {
-    //     setImageUri([
-    //       {image: User.imageData[0].image, id: User.imageData[0].id},
-    //       {image: User.imageData[1].image, id: User.imageData[1].id},
-    //       {image: User.imageData[2].image, id: User.imageData[2].id},
-    //       {image: User.imageData[3].image, id: User.imageData[3].id},
-    //     ]);
-    //   }
-    // }
+    if (User.imageData != null) {
+      User.imageData.map((item, index) => {
+        if (index == 0 && User.imageData[0].image != null) setImage1(true);
+        if (index == 1 && User.imageData[1].image != null) setImage2(true);
+        if (index == 2 && User.imageData[2].image != null) setImage3(true);
+        if (index == 3 && User.imageData[3].image != null) setImage4(true);
+      });
+      if (User.imageData.length == 1) {
+        imageUri.current=[
+          {image: User.imageData[0].image, id: User.imageData[0].id},
+          {image: null, id: null},
+          {image: null, id: null},
+          {image: null, id: null},]
+     
+      } else if (User.imageData.length == 2) {
+        imageUri.current=[
+          {image: User.imageData[0].image, id: User.imageData[0].id},
+          {image: User.imageData[1].image, id: User.imageData[1].id},
+          {image: null, id: null},
+          {image: null, id: null},
+        ];
+      } else if (User.imageData.length == 3) {
+        imageUri.current=[
+          {image: User.imageData[0].image, id: User.imageData[0].id},
+          {image: User.imageData[1].image, id: User.imageData[1].id},
+          {image: User.imageData[2].image, id: User.imageData[2].id},
+          {image: null, id: null},
+        ];
+      } else if (User.imageData.length == 4) {
+        imageUri.current=[
+          {image: User.imageData[0].image, id: User.imageData[0].id},
+          {image: User.imageData[1].image, id: User.imageData[1].id},
+          {image: User.imageData[2].image, id: User.imageData[2].id},
+          {image: User.imageData[3].image, id: User.imageData[3].id},
+        ];
+      }
+    }
     // console.log('imageuri', User.imageData);
   }, []);
   // useEffect(() => {

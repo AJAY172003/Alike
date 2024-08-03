@@ -1,18 +1,20 @@
-const currentMatchingSystem = 'prod';
+export const currentMatchingSystem = 'prod';
 const currentPaymentSystem = 'prod';
 import axios from 'axios';
 
-const baseMatchingUrls = {
-  dev: 'http://192.168.1.6:8000',
+export const baseMatchingUrls = {
+  dev: 'http://192.168.1.41:8000',
   prod: 'https://king-prawn-app-xjfwg.ondigitalocean.app',
 };
 
-const basePaymentUrls = {
-  dev: 'http://192.168.1.6:3000',
+export const basePaymentUrls = {
+  dev: 'http://192.168.1.41:3000',
   prod: 'https://seashell-app-sqjrj.ondigitalocean.app',
 };
 
 export const matchingUrls = {
+  GETCHANCES: '/getChances',
+  CHANCES: '/updateChances',
   ONLINE: '/online',
   DAILY_USER_REPORTS: '/dailyUserReports',
   CHAT_REQUEST: '/user',
