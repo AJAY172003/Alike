@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {launchImageLibrary} from 'react-native-image-picker';
 import PlusIcon from '../assets/images/plusIcon.svg';
+import Tick from '../assets/images/Tick.svg';
 import {
   View,
   Text,
@@ -11,6 +12,7 @@ import {
   ScrollView,
   ToastAndroid,
   Image,
+  Button,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Profile from '../assets/images/profile.svg';
@@ -24,7 +26,9 @@ import {routes} from '../constants/routes';
 import {SelectList} from 'react-native-dropdown-select-list';
 import axios from 'axios';
 import {useFocusEffect} from '@react-navigation/native';
-import { set } from 'mongoose';
+import {set} from 'mongoose';
+import { se } from 'date-fns/locale';
+import { Use } from 'react-native-svg';
 
 const genderData = [
   {key: '1', value: 'Female'},
@@ -32,18 +36,8 @@ const genderData = [
 ];
 
 function Settings({navigation}) {
-  //   useFocusEffect(
-  //     React.useCallback(() => {
-  //       const onBlur = () => {
-  // uploadImage();
-  //       };
-
-  //       // Return a function to clean up
-  //       return () => {
-  //         onBlur();
-  //       };
-  //     }, [])
-  //   );
+const [selected,setSelected]=useState([{index:0,value:false},{index:1,value:false},{index:2,value:false},{index:3,value:false}])
+const[hold,setHold]=useState(false)
   const {CountryFilter, LanguageFilter, SearchKey, User} = useSelector(
     state => state.data,
   );
@@ -54,7 +48,7 @@ function Settings({navigation}) {
       scrollViewRef.current.scrollTo({y: 0, animated: true});
     }
   };
-  const[email,setEmail]=useState(User.Email);
+  const [email, setEmail] = useState(User.Email);
   const [country, setCountry] = useState(User.Country);
   const [language, setLanguage] = useState(User.Language);
   const [gender, setGender] = useState(User.Gender);
@@ -63,49 +57,42 @@ function Settings({navigation}) {
   const [isOn, setIsOn] = useState(User.premiumSettings.autoReconnect);
   const [message, setMessage] = useState(User.premiumSettings.autoMessage);
   const [value, setValue] = useState(User.Name);
-  const imageUri =useRef([]) 
+  const imageUri = useRef([]);
   const [singleImageData, setSingleImageData] = useState(null);
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
   const dispatch = useDispatch();
-  const  uploadImage = async (uri,id,number,image) => {
+  const uploadImage = async (uri, id, number, image) => {
     const data = new FormData();
-    console.log("in request")
+    console.log('in request');
     data.append('fileData', {
       uri: uri,
       type: 'image/jpeg',
       name: 'image.jpeg',
     });
     data.append('userId', email);
-    
     data.append('id', id);
-
-
-//  console.log("data",  data._parts[2])
     try {
-      console.log("ssssssssssssssssssssssssssssssssssss")
+      console.log('ssssssssssssssssssssssssssssssssssss');
       const response = await axios.post(
         'https://king-prawn-app-xjfwg.ondigitalocean.app/upload',
         data,
-  
+
         {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-
         },
       );
-      
-      imageUri.current= imageUri.current.map((item, index) =>
-          index == number
-            ? {image: image, id: response.data.id}
-            : item,
-        );
-        
-        dispatch(setUser({imageData: imageUri.current}));
-     
+
+      imageUri.current = imageUri.current.map((item, index) =>
+        index == number ? {image: image, id: response.data.id} : item,
+      );
+
+      dispatch(setUser({imageData: imageUri.current}));
+
       // dispatch(setUser(imageUri));
       console.log('Image uploaded successfully: ', response.data.id);
     } catch (error) {
@@ -114,14 +101,14 @@ function Settings({navigation}) {
   };
   useEffect(() => {
     setEmail(User.Email);
-    imageUri.current=([
+    imageUri.current = [
       {image: null, id: null},
       {image: null, id: null},
       {image: null, id: null},
       {image: null, id: null},
-    ]);
+    ];
     console.log(imageUri.current);
-   
+
     if (User.imageData != null) {
       User.imageData.map((item, index) => {
         if (index == 0 && User.imageData[0].image != null) setImage1(true);
@@ -130,28 +117,28 @@ function Settings({navigation}) {
         if (index == 3 && User.imageData[3].image != null) setImage4(true);
       });
       if (User.imageData.length == 1) {
-        imageUri.current=[
+        imageUri.current = [
           {image: User.imageData[0].image, id: User.imageData[0].id},
           {image: null, id: null},
           {image: null, id: null},
-          {image: null, id: null},]
-     
+          {image: null, id: null},
+        ];
       } else if (User.imageData.length == 2) {
-        imageUri.current=[
+        imageUri.current = [
           {image: User.imageData[0].image, id: User.imageData[0].id},
           {image: User.imageData[1].image, id: User.imageData[1].id},
           {image: null, id: null},
           {image: null, id: null},
         ];
       } else if (User.imageData.length == 3) {
-        imageUri.current=[
+        imageUri.current = [
           {image: User.imageData[0].image, id: User.imageData[0].id},
           {image: User.imageData[1].image, id: User.imageData[1].id},
           {image: User.imageData[2].image, id: User.imageData[2].id},
           {image: null, id: null},
         ];
       } else if (User.imageData.length == 4) {
-        imageUri.current=[
+        imageUri.current = [
           {image: User.imageData[0].image, id: User.imageData[0].id},
           {image: User.imageData[1].image, id: User.imageData[1].id},
           {image: User.imageData[2].image, id: User.imageData[2].id},
@@ -165,12 +152,12 @@ function Settings({navigation}) {
   //   console.log("raeched");
   //   // console.log("imageuri",imageUri[singleImageData.number].id);
   //     dispatch(setUser({imageData: imageUri.current}));
-    
+
   // }, [imageUri]);
   // useEffect(() => {
   //   if (singleImageData != null) {
   //  uploadImage()
-   
+
   //   }
   // }, [singleImageData]);
   const selectImage = number => {
@@ -181,24 +168,35 @@ function Settings({navigation}) {
         console.log('ImagePicker Error: ', response.errorMessage);
       } else {
         const asset = response.assets[0];
-      console.log("imageuri",imageUri.current[number].id);
-        if ( imageUri.current[number].id!= null && imageUri.current[number] != undefined) {
-          uploadImage(asset.uri,imageUri.current[number].id,number,asset.base64)
-         
-            setSingleImageData({
-              uri: asset.uri,
-              id: [imageUri.current[number].id],
-              number: number,
-              image: asset.base64,
-            });
-   
-        } 
-        else {
-          uploadImage(asset.uri,imageUri.current[number].id,number,asset.base64)
-          
+        console.log('imageuri', imageUri.current[number].id);
+        if (
+          imageUri.current[number].id != null &&
+          imageUri.current[number] != undefined
+        ) {
+          uploadImage(
+            asset.uri,
+            imageUri.current[number].id,
+            number,
+            asset.base64,
+          );
+
           setSingleImageData({
             uri: asset.uri,
-            id:null,
+            id: [imageUri.current[number].id],
+            number: number,
+            image: asset.base64,
+          });
+        } else {
+          uploadImage(
+            asset.uri,
+            imageUri.current[number].id,
+            number,
+            asset.base64,
+          );
+
+          setSingleImageData({
+            uri: asset.uri,
+            id: null,
             number: number,
             image: asset.base64,
           });
@@ -208,17 +206,15 @@ function Settings({navigation}) {
         //    imageUri.current.map((item, index) =>
         //     index == number ? {image: asset.base64} : item,
         //   );
-       
-      console.log("below the singldata")
-  
+
+        console.log('below the singldata');
+
         if (number == 0) setImage1(true);
         if (number == 1) setImage2(true);
         if (number == 2) setImage3(true);
         if (number == 3) setImage4(true);
-
       }
     });
-   
   };
   useEffect(() => {
     if (SearchKey == 'country' && CountryFilter !== null) {
@@ -243,6 +239,20 @@ function Settings({navigation}) {
     };
     dispatch(setUser(user));
   }, [country, language, gender, value, isOn, message]);
+  useEffect(() => {
+    let check=false
+    selected.map((item,index)=>{  
+     
+      if(item.value){
+    check=true
+      }
+     
+    }
+    )
+    if(check==false){
+   setHold(false)
+    }
+  }, [selected]);
 
   const slideBox = () => {
     if (User.isPremium) {
@@ -272,8 +282,44 @@ function Settings({navigation}) {
     if (!User.isPremium)
       ToastAndroid.show('Upgrade to Premium First', ToastAndroid.SHORT);
   };
-
+console.log('selected',User.isLoggedin);
   return (
+    !User.isLoggedIn?
+    <View style={{
+      height: '100%',
+      backgroundColor: '#211F1F',
+      paddingHorizontal: 20,
+      justifyContent:'center'
+      ,alignItems:'center'
+    }}>
+      <Text
+        style={{
+          fontSize: 25,
+          fontWeight: '500',
+          color: 'white',
+        
+        
+        }}>
+          Login or Signup to access settings and match with
+          
+      </Text>
+      <Text
+        style={{
+          fontSize: 25,
+          fontWeight: '500',
+          color: 'white',
+   marginBottom:20
+        }}>
+           people
+      </Text>
+      <Button color={"#051EFF"} onPress={()=>navigation.navigate(routes.FIRSTSCREEN, {
+                screen: routes.FIRSTSCREEN,
+                params: {isFromHome: true},
+              })} title='Login/Signup'></Button>
+
+    </View>
+    : 
+    (
     <ScrollView
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
@@ -286,6 +332,8 @@ function Settings({navigation}) {
         backgroundColor: '#211F1F',
         paddingHorizontal: 20,
       }}>
+        
+        <View style={{flexDirection:'row',gap:200}}>
       <TouchableOpacity
         style={{
           marginTop: 20,
@@ -294,43 +342,146 @@ function Settings({navigation}) {
         <Image
           source={require('../assets/images/back_icon.png')}
           style={{
-            width: 90,
-            height: 20,
+            marginLeft: 10,
+            width: 30,
+            height: 30,
           }}
         />
       </TouchableOpacity>
+      {
+        hold&&
+        <TouchableOpacity onPress={()=>{
+          setHold(false)
+          const image=imageUri.current.map((item,index)=>{
+            if(selected[index].value){
+              return {image:null,id:null}
+            }
+            else{
+              return item
+            }
+          })
+          imageUri.current.map(async(item,index)=>{
+            console.log('selected',selected[index].value);
+            if(selected[index].value){ 
+              await axios.post(
+                'https://king-prawn-app-xjfwg.ondigitalocean.app/delete',
+               {id: imageUri.current[index].id,}
+        
+              );
+              imageUri.current[index]={image:null,id:null}
+     
+              if(index==0){
+                setImage1(false)
+              }
+              if(index==1){
+                setImage2(false)
+              }
+              if(index==2){
+                setImage3(false)
+              }
+              if(index==3){
+                setImage4(false)
+
+            }
+          }}
+          )
+   
+
+          dispatch(setUser({imageData: image}));
+        }}>
+        <Text style
+        ={{color:'white',fontSize:15,fontWeight:'700',marginTop:20,marginLeft:20,alignSelf:'center'}}
+        >Delete</Text>
+         </TouchableOpacity>
+      }
+  
+      </View>
+     
       <Text
         style={{
-          fontSize: 40,
-          fontWeight: '700',
+          fontSize: 15,
+          fontWeight: '500',
           color: 'white',
-          marginTop: 10,
+          marginTop: 20,
+          marginLeft: 10,
         }}>
-        Setting
+        Minimum 2 photos required
       </Text>
       <View
         style={{
-          display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-around',
         }}>
         <View
-          style={{flexDirection: 'row', gap: 17, width: 300, marginTop: 17}}>
+          style={{
+            flexDirection: 'row',
+            gap: 17,
+            width: 300,
+            marginTop: 17,
+            marginLeft: 10,
+          }}>
           <TouchableOpacity
-            onPress={() => {
-              selectImage(0);
-            }}>
+               onPress={() => {
+               hold ? setSelected((prevvalue)=>{
+                     return prevvalue.map((item,index)=>{
+                  
+                     if(index==0){
+                          return {index:0,value: !prevvalue[0].value}
+                        }
+                        else{
+                          return {...item}
+                        }
+                   
+                      })
+                 } ) :
+                  selectImage(0);
+                }}
+                onLongPress={() => {
+                  ! hold&&
+                   setSelected(prevvalue=>{
+                       return prevvalue.map((item,index)=>{
+                        if(index==3){
+                          setHold(true)
+                        }
+                        if(index==0){
+                           return {index:1,value: !prevvalue[1].value}
+                         }
+                        
+                           else{
+                             return {...item}
+                           }
+                        
+                     
+                         })
+                     }
+                   )
+                 }
+                }
+         
+            >
+            
             {image1 ? (
-              <Image
-                source={{uri: `data:image/jpeg;base64,${imageUri.current[0].image}`}}
-                style={{
-                  borderRadius: 5,
-                  borderWidth: 1,
-                  borderColor: 'white',
-                  width: 90,
-                  height: 140,
-                }}
-              />
+              <>
+              
+              {
+                selected[0].value && <View
+                style={{position: 'absolute', zIndex: 1, top: 45, left: 25}}>
+                <Tick />
+              </View>
+              }
+                
+                <Image
+                  source={{
+                    uri: `data:image/jpeg;base64,${imageUri.current[0].image}`,
+                  }}
+                  style={{
+                    borderRadius: 5,
+                    borderWidth: 1,
+                    borderColor: 'white',
+                    width: 90,
+                    height: 140,
+                  }}
+                />
+              </>
             ) : (
               <View
                 style={{
@@ -348,11 +499,53 @@ function Settings({navigation}) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
+           hold ? setSelected((prevvalue)=>{
+                 return prevvalue.map((item,index)=>{
+              
+                 if(index==1){
+                      return {index:1,value: !prevvalue[1].value}
+                    }
+                    else{
+                      return {...item}
+                    }
+               
+                  })
+             } ) :
               selectImage(1);
-            }}>
-            {image2 ? (
+            }}
+            onLongPress={() => {
+             ! hold&&
+              setSelected(prevvalue=>{
+                  return prevvalue.map((item,index)=>{
+                    if(index==3){
+                      setHold(true)
+                    }
+                   if(index==1){
+                      return {index:1,value: !prevvalue[1].value}
+                    }
+                 
+              
+                      else{
+                        return {...item}
+                      }
+                
+                    })
+                }
+              )
+            }
+          }
+            >
+            {image2 ? (<>
+                            {
+                              selected[1].value && <View
+                              style={{position: 'absolute', zIndex: 1, top: 45, left: 25}}>
+                              <Tick />
+                            </View>
+                            }
               <Image
-                source={{uri: `data:image/jpeg;base64,${imageUri.current[1].image}`}}
+                source={{
+                  uri: `data:image/jpeg;base64,${imageUri.current[1].image}`,
+                }}
                 style={{
                   borderRadius: 5,
 
@@ -361,7 +554,7 @@ function Settings({navigation}) {
                   width: 90,
                   height: 140,
                 }}
-              />
+              /></>
             ) : (
               <View
                 style={{
@@ -378,12 +571,56 @@ function Settings({navigation}) {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => {
+           onPress={() => {
+            hold ? setSelected((prevvalue)=>{
+                 return prevvalue.map((item,index)=>{
+              
+                 if(index==2){
+                      return {index:2,value: !prevvalue[2].value}
+                    }
+                    else{
+                      return {...item}
+                    }
+               
+                  })
+             } ) :
               selectImage(2);
-            }}>
+            }}
+            onLongPress={() => {
+             ! hold&&
+              setSelected(prevvalue=>{
+                  return prevvalue.map((item,index)=>{
+                    if(index==3){
+                      setHold(true)
+                    }
+                   if(index==2){
+                      return {index:2,value: !prevvalue[2].value}
+                    }
+                  
+              
+                      else{
+                        return {...item}
+                      }
+                
+                    })
+                }
+              )
+            }
+          }
+            
+            >
             {image3 ? (
+              <>
+              {
+                selected[2].value && <View
+                style={{position: 'absolute', zIndex: 1, top: 45, left: 25}}>
+                <Tick />
+              </View>
+              }
               <Image
-                source={{uri: `data:image/jpeg;base64,${imageUri.current[2].image}`}}
+                source={{
+                  uri: `data:image/jpeg;base64,${imageUri.current[2].image}`,
+                }}
                 style={{
                   borderRadius: 5,
 
@@ -392,7 +629,7 @@ function Settings({navigation}) {
                   width: 90,
                   height: 140,
                 }}
-              />
+              /></>
             ) : (
               <View
                 style={{
@@ -412,11 +649,55 @@ function Settings({navigation}) {
         <TouchableOpacity
           style={{alignSelf: 'flex-start', marginTop: 17, marginLeft: 10}}
           onPress={() => {
-            selectImage(3);
-          }}>
+            hold ? setSelected((prevvalue)=>{
+                 return prevvalue.map((item,index)=>{
+              
+                 if(index==3){
+                      return {index:3,value: !prevvalue[3].value}
+                    }
+                    else{
+                      return {...item}
+                    }
+               
+                  })
+             } ) :
+              selectImage(3);
+            }}
+            onLongPress={() => {
+             ! hold&&
+              setSelected(prevvalue=>{
+                  return prevvalue.map((item,index)=>{
+                    if(index==3){
+                      setHold(true)
+                    }
+                   if(index==3){
+                      return {index:3,value: !prevvalue[3].value}
+                    }
+               
+               
+                      else{
+                        return {...item}
+                      }
+                
+                    })
+                }
+              )
+            }
+          }
+          
+          >
           {image4 ? (
+            <>
+            {
+              selected[3].value && <View
+              style={{position: 'absolute', zIndex: 1, top: 45, left: 25}}>
+              <Tick />
+            </View>
+            }
             <Image
-              source={{uri: `data:image/jpeg;base64,${imageUri.current[3].image}`}}
+              source={{
+                uri: `data:image/jpeg;base64,${imageUri.current[3].image}`,
+              }}
               style={{
                 borderRadius: 5,
 
@@ -425,7 +706,7 @@ function Settings({navigation}) {
                 width: 90,
                 height: 140,
               }}
-            />
+            /></>
           ) : (
             <View
               style={{
@@ -690,7 +971,7 @@ function Settings({navigation}) {
           </TouchableOpacity> */}
         </View>
       </View>
-    </ScrollView>
+    </ScrollView>)
   );
 }
 export default Settings;

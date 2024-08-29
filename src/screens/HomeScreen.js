@@ -1,4 +1,5 @@
 import {
+  Button,
   Image,
   ImageBackground,
   Modal,
@@ -17,10 +18,13 @@ import {
   setRequiredFilters,
   setstarsGiven,
   setUser,
+
 } from '../redux/DataSlice';
+import Refillicon from '../assets/images/refill.svg';
 import firebase from '@react-native-firebase/app';
 import StarModalNext from '../assets/images/starModalNext.svg';
 import {initializeApp} from 'firebase/app';
+import BuyRefill from '../assets/images/buyrefill.svg';
 import { parse ,format} from 'date-fns';
 import {useFocusEffect} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -34,11 +38,16 @@ import {getData} from '../utils/storage';
 import axios from 'axios';
 import { baseMatchingUrls, currentMatchingSystem, matchingUrls } from '../utils/api';
 
+
 export const HomeScreen = ({navigation}) => {
   const ws = useRef(null);
 
   const [rating, setRating] = useState(0);
+
   const [starModalVisible, setstarModalVisible] = useState(false);
+
+  const [isRefillModalVisible, setRefillModalVisible] = useState(false);
+  console.log('isBuyRefillPressed',isRefillModalVisible)
   // TODO: Replace the following with your app's Firebase project configuration
   // const firebaseConfig = {
   //   apiKey: 'AIzaSyAZTxitXSFBByCGdqB9gI2eJFTIbVLRNsw',
@@ -49,7 +58,8 @@ export const HomeScreen = ({navigation}) => {
   //   appId: '1:410497703187:android:e0d78a6df74f885c910ee6',
   // };
   // const app = initializeApp(firebaseConfig);
-  useEffect(async() => {
+  useEffect(() => {
+ 
     getData('starsGiven').then(data => {
       console.log('data', data);
       if (data == null) {
@@ -62,22 +72,36 @@ export const HomeScreen = ({navigation}) => {
         }
       }
     });
+    fetchChances();
   
-     const res=await axios.post(`${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.GETCHANCES}`, {
-        email: User.Email,
-     })
 
-if(res.chances==0){
-    const parsedDate = parse(res.timestamp.toString(), 'yyyy-MM-dd HH:mm:ss', new Date());
-    const currentTime = new Date().getTime();
-    const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
-
-    if (currentTime - parsedDate.getTime() >= twelveHoursInMilliseconds) {
-     dispatch( setUser({ chances: 15}));
-    }
-  }
   }, []);
   
+  const fetchChances = async () => {
+    const res=await axios.post(`${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.GETCHANCES}`, {
+      email: User.Email,
+   })
+console.log(res.data.message[0].timestamp)
+if(res.data.message[0].chances<=0){
+
+
+  const parsedDate = parse(res.data.message[0].timestamp.toString(), 'yyyy-MM-dd HH:mm:ss', new Date());
+  const currentTime = new Date().getTime();
+  const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
+
+  if (currentTime - parsedDate.getTime() >= twelveHoursInMilliseconds) {
+   dispatch( setUser({ chances: 15}));
+  }
+
+  else {
+    console.log("chancessss")
+    dispatch( setUser({ chances: 0}));
+  }
+}
+else {
+  console.log("chancessssvvv")
+  dispatch( setUser({ chances: res.data.message[0].chances}));
+}}
 //   const currentTimestamp = new Date().getTime();
 // const formattedTimestamp = format(currentTimestamp, 'yyyy-MM-dd HH:mm:ss');
 // console.log(formattedTimestamp);
@@ -86,6 +110,12 @@ if(res.chances==0){
 // //   // Convert the fetched timestamp to a Date object
 //   const parsedDate = parse(formattedTimestamp.toString(), 'yyyy-MM-dd HH:mm:ss', new Date());
 // console.log(parsedDate.getTime());
+const buyRefill = () => {
+
+  navigation.navigate(routes.PAYMENT_PROCESSING_REFILL);
+
+  setRefillModalVisible(false);
+}
   const closeStarModal = () => {
     console.log('ratingggggggg', rating);
     if (rating == 5) {
@@ -189,6 +219,61 @@ if(res.chances==0){
         paddingVertical: 20,
         paddingHorizontal: 35,
       }}>
+         <Modal
+            animationType="slide"
+            transparent={true}
+          
+            visible={ isRefillModalVisible}
+           >
+     
+              <View
+                style={{
+                  alignSelf:'center',
+                  borderWidth: 1,
+                  borderColor: 'white',
+                  borderRadius: 28,
+                  width:310,
+                  height: 511,
+                   paddingHorizontal:20,
+                  alignItems:'center',
+                  backgroundColor: '#211F1F',
+                  marginTop: 150,
+                }}>
+           <View style={{}}> 
+         <BuyRefill/>
+           </View>
+  
+           
+              <Text style={{color:'white',fontSize:19,  marginTop:30}}>Press Buy Refill to buy 15 or more chances</Text>
+        
+           
+          
+            <TouchableOpacity
+                  onPress={()=>buyRefill()}
+                  style={{
+                    backgroundColor: '#109A0D',
+                    marginTop:30,
+                    height: 50,
+                    width: 230,
+                    alignSelf: 'center',
+                  }}>
+                  
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 18,
+                      paddingTop: 10,
+                      fontWeight: 500,
+                      textAlign: 'center',
+                    }}>
+                   Buy Refill
+                  </Text>
+
+                </TouchableOpacity>
+ <Text style={{color:'white',fontSize:15,fontWeight:900,alignSelf:'center',marginTop:10,marginBottom:20}}>Your chances remaining <Text style={{color:'#109A0D'}}>{User.chances}</Text></Text>
+ <Button onPress={ ()=>setRefillModalVisible(false)} color={'#AF2323'} title='Close'></Button>
+            </View>
+          </Modal>      
       <Modal
         animationType="slide"
         transparent={true}
@@ -290,6 +375,7 @@ if(res.chances==0){
             }}>
             <View
               style={{
+                marginTop:25,
                 alignItems: 'flex-end',
                 justifyContent: 'flex-end',
                 flexDirection: 'row',
@@ -325,6 +411,27 @@ if(res.chances==0){
                 }}
               />
             </View>
+            <View style={{flexDirection:'row',gap:15}}>
+              <TouchableOpacity onPress={()=>
+                {
+                  if(!User.isLoggedIn){
+                    navigation.navigate(routes.FIRSTSCREEN, {
+                     screen: routes.FIRSTSCREEN,
+                     params: {isFromHome: true},
+                   });
+                   
+                   }else setRefillModalVisible(true)
+                }
+                
+                }>
+                  {
+                    User.Gender=='Male'?
+   <View style={{height:30,width:30,backgroundColor:'#051EFF',justifyContent:'center',alignItems:'center'}}>
+   <Refillicon />
+   </View>:<></>
+                  }
+             
+              </TouchableOpacity>
             <TouchableOpacity
               onPress={() => navigation.navigate(routes.SETTINGS)}>
               <Image
@@ -335,13 +442,26 @@ if(res.chances==0){
                   resizeMode: 'contain',
                 }}
               />
+              
             </TouchableOpacity>
+            </View>
           </View>
           <TouchableOpacity
             style={{
               marginTop: 30,
             }}
             onPress={() => {
+              
+              if(!User.isLoggedIn){
+               navigation.navigate(routes.FIRSTSCREEN, {
+                screen: routes.FIRSTSCREEN,
+                params: {isFromHome: true},
+              });
+              }
+              else{
+
+              
+
               dispatch(setCurrentChatTab(1));
               dispatch(
                 setChatData({
@@ -364,6 +484,7 @@ if(res.chances==0){
               navigation.navigate(routes.CHATMANAGER, {
                 userId: uuid.v4(),
               });
+            }
             }}>
             <ImageBackground
               source={require('../assets/images/chat_with_strangers.png')}
@@ -384,6 +505,13 @@ if(res.chances==0){
                 flex: 0.5,
               }}
               onPress={() => {
+                if(!User.isLoggedIn){
+                  navigation.navigate(routes.FIRSTSCREEN, {
+                   screen: routes.FIRSTSCREEN,
+                   params: {isFromHome: true},
+                 });
+                 }
+                 else
                 navigation.navigate(routes.COUNTRYCHAT);
               }}>
               <ImageBackground
@@ -401,6 +529,13 @@ if(res.chances==0){
                 marginTop: 7,
               }}
               onPress={() => {
+                if(!User.isLoggedIn){
+                  navigation.navigate(routes.FIRSTSCREEN, {
+                   screen: routes.FIRSTSCREEN,
+                   params: {isFromHome: true},
+                 });
+                 }
+                  else
                 navigation.navigate(routes.CHATROOM);
               }}>
               <ImageBackground
@@ -417,6 +552,13 @@ if(res.chances==0){
               marginTop: 7,
             }}
             onPress={() => {
+              if(!User.isLoggedIn){
+                navigation.navigate(routes.FIRSTSCREEN, {
+                 screen: routes.FIRSTSCREEN,
+                 params: {isFromHome: true},
+               });
+               }
+               else
               navigation.navigate(routes.COMMONLIKES);
             }}>
             <ImageBackground
@@ -428,7 +570,18 @@ if(res.chances==0){
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate(routes.ACCOUNTHEALTH)}>
+          
+            onPress={() =>
+            {
+              if(!User.isLoggedIn){
+                navigation.navigate(routes.FIRSTSCREEN, {
+                 screen: routes.FIRSTSCREEN,
+                 params: {isFromHome: true},
+               });
+               }
+               else    navigation.navigate(routes.ACCOUNTHEALTH)
+            }
+         }>
             <Text
               style={{
                 backgroundColor: '#051EFF',

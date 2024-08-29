@@ -23,8 +23,10 @@ import ChatScreen from '../components/ChatScreen';
 import {ConfirmationPopup} from '../components/ConfirmationPopup';
 import BackgroundTimer from 'react-native-background-timer';
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
-import {removeRequest, removeUsers, reportUser, skipChat} from '../utils/api';
+import {baseMatchingUrls, currentMatchingSystem, matchingUrls, removeRequest, removeUsers, reportUser, skipChat} from '../utils/api';
 import { routes } from '../constants/routes';
+import { format } from 'date-fns';
+import axios from 'axios';
 const MAX_CHAT_TAB_LIMIT = 5;
 const HEARTBEAT_TIMER = 2000;
 
@@ -32,7 +34,7 @@ const adUnitId = __DEV__ ? TestIds.BANNER : 'ca-app-pub-5213405198446794/5572783
 export const ChatManager = ({navigation, route}) => {
 
   const[isBuyRefillPressed,setBuyRefillPressed]=useState(false)
-  const [isRefillModalVisible, setRefillModalVisible] = useState(true);
+  const [isRefillModalVisible, setRefillModalVisible] = useState(false);
   const [confirmationPopupVisible, setConfirmationPopupVisible] =
     useState(false);
   const [confirmationPopupLoading, setConfirmationPopupLoading] =
@@ -52,6 +54,7 @@ export const ChatManager = ({navigation, route}) => {
   const buyRefill = () => {
     navigation.navigate(routes.PAYMENT_PROCESSING_REFILL);
     setBuyRefillPressed(true)
+    setRefillModalVisible(false);
   }
   const openModal = () => {
     setModalVisible(true);
@@ -62,11 +65,34 @@ export const ChatManager = ({navigation, route}) => {
 
   useEffect(() => {
     chatDataRef.current = ChatData;
-    if(User.chances==0){
+    if(User.chances<=0 && User.Gender=='Male'){
+     UpdateTimestamp()
       setRefillModalVisible(true);
     } 
   }, [ChatData]);
 
+  //upadte the timestamp
+  const UpdateTimestamp = async () => {
+    try {
+      const currentTimestamp = new Date().getTime();
+      
+      const formattedTimestamp = format(
+        currentTimestamp,
+        'yyyy-MM-dd HH:mm:ss',
+      );
+      console.log("formattedTimestamp",formattedTimestamp)
+     await axios.post(
+        `${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.CHANCES}`,
+        {
+          chances: User.chances,
+          email: User.Email,
+          timestamp: formattedTimestamp,
+        },
+      );}
+      catch(e){
+        console.log(e)
+      } 
+    }
   //Hnadle delete chat tab
   const onYes = () => {
     setModalChatDeleteVisible(false);
@@ -426,60 +452,62 @@ export const ChatManager = ({navigation, route}) => {
     
       size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
     />
-     <Modal
-            animationType="slide"
-            transparent={true}
-            visible={ isRefillModalVisible}
-           >
-          
-              <View
-                style={{
-                  alignSelf:'center',
-                  borderWidth: 1,
-                  borderColor: 'white',
-                  borderRadius: 28,
-                  width:310,
-                  height: 511,
-                   paddingHorizontal:20,
-                  alignItems:'center',
-                  backgroundColor: '#211F1F',
-                  marginTop: 150,
-                }}>
-           <View style={{}}> 
-         <BuyRefill/>
-           </View>
-           {
-              isBuyRefillPressed? <><Text style={{color:'white',fontSize:55,  marginTop:30,}}>-12+</Text>
-              <Text style={{color:'white',fontSize:32,  marginTop:20,}}>$1</Text></>
-              :
-              <Text style={{color:'white',fontSize:21.3,  marginTop:30,}}>You used all the daily chat limit. Wait for 12 hours to refill</Text>
+   
+      <Modal
+      animationType="slide"
+      transparent={true}
+      visible={ isRefillModalVisible}
+     >
+    
+        <View
+          style={{
+            alignSelf:'center',
+            borderWidth: 1,
+            borderColor: 'white',
+            borderRadius: 28,
+            width:310,
+            height: 511,
+             paddingHorizontal:20,
+            alignItems:'center',
+            backgroundColor: '#211F1F',
+            marginTop: 150,
+          }}>
+     <View style={{}}> 
+   <BuyRefill/>
+     </View>
+     {
+        isBuyRefillPressed? <><Text style={{color:'white',fontSize:55,  marginTop:30,}}>-12+</Text>
+        <Text style={{color:'white',fontSize:32,  marginTop:20,}}>$1</Text></>
+        :
+        <Text style={{color:'white',fontSize:21.3,  marginTop:30,}}>You used all the daily chat limit. Wait for 12 hours to refill</Text>
 
-           }
-          
-            <TouchableOpacity
-                  onPress={()=>isBuyRefillPressed? setRefillModalVisible(false):buyRefill()}
-                  style={{
-                    backgroundColor: isBuyRefillPressed? "#051EFF": '#109A0D',
-                    marginTop:30,
-                    height: 50,
-                    width: 230,
-                    alignSelf: 'center',
-                  }}>
-                  
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: 18,
-                      paddingTop: 10,
-                      fontWeight: 500,
-                      textAlign: 'center',
-                    }}>
-                   Buy Refill
-                  </Text>
-                </TouchableOpacity>
+     }
+    
+      <TouchableOpacity
+            onPress={()=>isBuyRefillPressed? setRefillModalVisible(false):buyRefill()}
+            style={{
+              backgroundColor: isBuyRefillPressed? "#051EFF": '#109A0D',
+              marginTop:30,
+              height: 50,
+              width: 230,
+              alignSelf: 'center',
+            }}>
+            
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 18,
+                paddingTop: 10,
+                fontWeight: 500,
+                textAlign: 'center',
+              }}>
+             Buy Refill
+            </Text>
+          </TouchableOpacity>
 
-            </View>
-          </Modal>      
+      </View>
+    </Modal> 
+     
       <View
         style={{
           flexDirection: 'row',

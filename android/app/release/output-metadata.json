@@ -4,14 +4,14 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "app.lit",
+  "applicationId": "com.lifekeypad",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 8,
+      "versionCode": 505,
       "versionName": "1",
       "outputFile": "app-release.apk"
     }

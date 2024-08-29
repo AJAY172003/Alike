@@ -82,6 +82,7 @@ function FirstScreen({ navigation }) {
  
           console.log("result",response.data.images)
           dispatch( setUser({
+            isLoggedIn: true,
             imageData: responseJSON.data.images.length!=0? responseJSON.data.images:[{image:null,id:null},{image:null,id:null},{image:null,id:null},{image:null,id:null}],
             Email: userInfo.user.email,
             chances: responseJSON.data.message[0].chances,
@@ -160,6 +161,7 @@ function FirstScreen({ navigation }) {
      console.log(response.data) 
     });
     const user = {
+      isLoggedIn: true,
       chances:15,
       Email:email,
       Name: value,
@@ -365,32 +367,7 @@ function FirstScreen({ navigation }) {
     width: '100%',
     borderRadius: 10,
   }}>
-  {User.Email?.length > 0 ? (
-    <>
-      <Text
-        style={{
-          fontWeight: 'bold',
-          fontSize: 13,
-          color: 'white',
-          paddingTop: 10,
-        }}>
-        {User.Email}
-      </Text>
-      <View style={{marginTop: 10}}>
-        <Button title="sign out" onPress={signOut}></Button>
-      </View>
-    </>
-  ) : (
-    <>
-      {/* <Text
-        style={{
-          fontWeight: 500,
-          fontSize: 14,
-          color: 'white',
-          marginTop: 10,
-        }}>
-        Login or sign up to restore your subscription
-      </Text> */}
+  {
        
  
       <View style={{alignSelf:'center',alignItems:'center',
@@ -431,8 +408,8 @@ function FirstScreen({ navigation }) {
         </View>
       </TouchableOpacity>
       </View>
-    </>
-  )}
+
+  }
 </View>
 }
 </View>

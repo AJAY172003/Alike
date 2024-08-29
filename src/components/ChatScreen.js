@@ -10,7 +10,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import BuyRefill from '../assets/images/buyrefill.svg';
+
 import Send from '../assets/images/send.svg';
 import {useDispatch, useSelector} from 'react-redux';
 import uuid from 'react-native-uuid';
@@ -41,10 +41,9 @@ import FemaleLargeicon from '../assets/images/femaleLarge.svg';
 import MaleLargeicon from '../assets/images/maleLarge.svg';
 import AddIcon from '../assets/images/addIcon.svg';
 
-import {getData} from '../utils/storage';
-import {useFocusEffect} from '@react-navigation/native';
 import axios from 'axios';
 import {routes} from '../constants/routes';
+import { format } from 'date-fns';
 
 const FEMALE = 'Female';
 //function for debounce
@@ -63,6 +62,7 @@ const useDebouncedValue = (inputValue, delay) => {
 
   return debouncedValue;
 };
+
 function ChatScreen({chatTab, userId, isLocked}) {
   // useFocusEffect(
   //   React.useCallback(() => {
@@ -75,8 +75,7 @@ function ChatScreen({chatTab, userId, isLocked}) {
   //     };
   //   }, [])
   // );
-  const [isRefillModalVisible, setRefillModalVisible] = useState(false);
-  const [isBuyRefillPressed, setBuyRefillPressed] = useState(false);
+  
 
   const [next, SetNext] = useState(false);
   const [timer, SetTimer] = useState(7);
@@ -144,7 +143,7 @@ function ChatScreen({chatTab, userId, isLocked}) {
       if (response.data.user.image != null)
         setImageData(response.data.user.image);
       console.log('chances', User.chances);
-      if (User.chances == 0) {
+      if (User.chances <= 0) {
         const currentTimestamp = new Date().getTime();
         const formattedTimestamp = format(
           currentTimestamp,
@@ -284,9 +283,7 @@ function ChatScreen({chatTab, userId, isLocked}) {
     if (InfoPopupSeen == false) {
       openModal();
     }
-    if (User.chances <= 0) {
-      setRefillModalVisible(true);
-    }
+   
     return () => {
       axios.post('http://192.168.1.6:8000/updateChances', {
         chances: User.chances,

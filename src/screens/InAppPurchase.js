@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
     getProducts,
     initConnection,
@@ -9,7 +10,7 @@ import {
     finishTransaction,
     requestPurchase
   } from 'react-native-iap';
-  const {currentPurchase} = useIAP();
+
   export const InAppPurchasePayments = async productId => {
     await makeConnection(productId);
     let paymentMethodCall = await handlePayment(productId);
@@ -38,7 +39,7 @@ import {
     // } else {
     //   desiredOfferToken = 'offerToken';
     // }
-    if(myProductId == 'alike1'){
+    if(myProductId == 'alike2'){
       console.log("reces",myProductId)
       try {
       
@@ -90,21 +91,36 @@ import {
    console.log('payment',payment)
     return payment;
   }
-  useEffect(() => {
-    const checkCurrentPurchase = async () => {
-           try {
-               console.log('currentPurchase', currentPurchase);
-                   await finishTransaction({
-                       purchase: currentPurchase,
-                       isConsumable: true,
-                   });
-                   onApiCall(currentPurchase);
-               
-           } catch (error) {
-               handleError(error, 'checkCurrentPurchase');
-           }
-       };
 
-       checkCurrentPurchase();
-   }, [currentPurchase, finishTransaction]);
+  };
+  export default InAppPurchase = () => {
+    
+    useEffect(() => {
+      const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
+        console.log('purchaseUpdatedListener', purchase);
+        try {
+         const re= await finishTransaction({
+            purchase:purchase,
+            isConsumable: true,
+            
+          });
+          console.log("re",re)
+        } catch (err) {
+          console.warn('Error handling purchase', err);
+        }
+      });
+  
+      const purchaseErrorSubscription = purchaseErrorListener((error) => {
+        console.warn('purchaseErrorListener', error);
+      });
+  
+      return () => {
+        purchaseUpdateSubscription.remove();
+        purchaseErrorSubscription.remove();
+      };
+    }, []);
+  
+    return (
+      <></> // Your app's main component code
+    );
   };

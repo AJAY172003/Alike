@@ -8,10 +8,10 @@ import {routes} from '../constants/routes';
 import {setUser} from '../redux/DataSlice';
 import {supaClient} from '../utils/SupaClient';
 import {baseMatchingUrls, currentMatchingSystem, matchingUrls, verifyPayment} from '../utils/api';
-
+import InAppPurchase from '../screens/InAppPurchase';
 function PaymentProcessingRefill({navigation}) {
   const {User} = useSelector(state => state.data);
-  const SKU_IDs = 'alike1';
+  const SKU_IDs = 'alike2';
   const purchaseTokenRef = useRef(null);
   const subIdRef = useRef(null);
   const [transactionFailed, setTransactionFailed] = useState(false);
@@ -53,20 +53,20 @@ function PaymentProcessingRefill({navigation}) {
         
         purchaseToken: purchaseTokenRef.current,
         email: User.Email,
-        subId: "alike1",
+        subId: "alike2",
       })
-        .then(function (response) {
+        .then(async function (response) {
           // TODO: handle other status codes too in future
    console.log("succesfully purchased")
           // dispatch(setUser({...User, isPremium: true}));
           ToastAndroid.show('Succesfully purchased chances', ToastAndroid.LONG);
          
-          axios.post(`${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.CHANCES}`, {
+          await axios.post(`${baseMatchingUrls[currentMatchingSystem]}${matchingUrls.CHANCES}`, {
             email: User.Email,
             chances: User.chances+15,
           });
           dispatch(setUser({chances: User.chances+15}))
-          navigation.navigate(routes.SETTINGS);
+          navigation.navigate(routes.HOMESCREEN);
         })
         .catch(function (error) {
           console.log('transaction failed');
@@ -118,6 +118,7 @@ function PaymentProcessingRefill({navigation}) {
         display: 'flex',
         height: '100%',
       }}>
+      <InAppPurchase/>
       {!transactionFailed ? (
         <View
           style={{

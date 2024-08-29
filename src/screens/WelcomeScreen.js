@@ -124,15 +124,18 @@ export const WelcomeScreen = ({navigation}) => {
 
   useEffect(() => {
     if (hasDataLoaded) {
-      if (User.isUserInfoFilled) {
-        navigation.dispatch(
-          StackActions.replace(routes.HOMESCREEN, {params: {}}),
-        );
-      } else {
-        navigation.dispatch(
-          StackActions.replace(routes.FIRSTSCREEN, {params: {}}),
-        );
-      }
+      navigation.dispatch(
+            StackActions.replace(routes.HOMESCREEN, {params: {}}),
+          );
+      // if (User.isUserInfoFilled) {
+      //   navigation.dispatch(
+      //     StackActions.replace(routes.HOMESCREEN, {params: {}}),
+      //   );
+      // } else {
+      //   navigation.dispatch(
+      //     StackActions.replace(routes.FIRSTSCREEN, {params: {}}),
+      //   );
+      // }
     }
   }, [hasDataLoaded]);
   return (
